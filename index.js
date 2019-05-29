@@ -170,12 +170,38 @@ instance.prototype.action = function (action) {
 
 	switch (id) {
 		case 'route':
-			cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+			if (opt.input < 10 && opt.output < 10) {
+				opt.output = ("0" + opt.output).slice(-2);
+				opt.input = ("0" + opt.input).slice(-2);
+				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				debug("formatted output");
+			}
+			else if (opt.input < 10) {
+				opt.input = ("0" + opt.input).slice(-2);
+				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				debug("formatted input");
+			}
+			else if (opt.output < 10) {
+				opt.output = ("0" + opt.output).slice(-2);
+				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				debug("formatted output");
+			}
+			else {
+				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+			}
 			break;
+		
 		case 'recallPreset':
-			cmd = "PS\x20" + opt.preset +"   ";
-			break;
-		}
+			if (opt.preset < 10) {
+				opt.preset = ("0" + opt.preset).slice(-2);
+				cmd = "PS\x20" + opt.preset +"   ";
+				debug("formatted output");
+			}
+			else {
+				cmd = "PS\x20" + opt.preset +"   ";
+			}
+			break;		
+	}
 
 	if (cmd !== undefined) {
 			if (self.tcp !== undefined) {
