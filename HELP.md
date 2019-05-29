@@ -4,7 +4,6 @@
 
 ## Extra Information
 
-* Currently Input,Output & Preset Fields Require a leading 0
 
 ## Supported commands
 
