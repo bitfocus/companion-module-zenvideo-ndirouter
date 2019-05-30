@@ -173,32 +173,32 @@ instance.prototype.action = function (action) {
 			if (opt.input < 10 && opt.output < 10) {
 				opt.output = ("0" + opt.output).slice(-2);
 				opt.input = ("0" + opt.input).slice(-2);
-				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
-				debug("formatted output");
+				cmd = "OS " + opt.output +" "+ opt.input;
+				debug("formatted inoutput");
 			}
 			else if (opt.input < 10) {
 				opt.input = ("0" + opt.input).slice(-2);
-				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				cmd = "OS " + opt.output +" "+ opt.input;
 				debug("formatted input");
 			}
 			else if (opt.output < 10) {
 				opt.output = ("0" + opt.output).slice(-2);
-				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				cmd = "OS " + opt.output +" "+ opt.input;
 				debug("formatted output");
 			}
 			else {
-				cmd = "OS\x20" + opt.output +"\x20"+ opt.input;
+				cmd = "OS " + opt.output +" "+ opt.input;
 			}
 			break;
 		
 		case 'recallPreset':
 			if (opt.preset < 10) {
 				opt.preset = ("0" + opt.preset).slice(-2);
-				cmd = "PS\x20" + opt.preset +"   ";
-				debug("formatted output");
+				cmd = "PS " + opt.preset +"   ";
+				debug("formatted preset");
 			}
 			else {
-				cmd = "PS\x20" + opt.preset +"   ";
+				cmd = "PS " + opt.preset +"   ";
 			}
 			break;		
 	}
