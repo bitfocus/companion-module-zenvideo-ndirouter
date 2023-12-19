@@ -1,7 +1,9 @@
 import { runEntrypoint, InstanceBase, InstanceStatus } from '@companion-module/base'
 import { TCPHelper, Regex } from '@companion-module/base'
 import { compileActionDefinitions } from './actions.js'
+import { GetVariableDefinitions } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
+import { GetFeedbackDefinitions } from './feedbacks.js'
 
 class ZNRInstance extends InstanceBase {
 	sendCmd = async (cmd) => {
@@ -80,7 +82,7 @@ class ZNRInstance extends InstanceBase {
 		this.router.pre = []
 		this.router.preset = 0
 
-		this.setVariableDefinitions([])
+		this.setVariableDefinitions(GetVariableDefinitions(this))
 
 		for (let i = 1; i <= this.MAX_INPUTS; i++) {
 			const base = `i_${this.pad0(i)}_`
@@ -123,7 +125,7 @@ class ZNRInstance extends InstanceBase {
 				[pbase + 'u']: false,
 			})
 		}
-		this.setFeedbackDefinitions([])
+		this.setFeedbackDefinitions(GetFeedbackDefinitions(this))
 		this.setActionDefinitions(compileActionDefinitions(this))
 
 		this.init_tcp()
