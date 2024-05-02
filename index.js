@@ -16,12 +16,16 @@ class ZNRInstance extends InstanceBase {
 			this.log('debug', 'Socket not connected :(')
 		}
 	}
-
+	/**
+	 * Returns the passed integer left-padded with '0's
+	 * Will truncate result length is greater than 'len'
+	 * @param {number} num - number to pad
+	 * @param {number} [len=2] - optional length of result, defaults to 2
+	 * @returns {string}
+	 */
 	pad0(num, len = 2) {
-		const zeros = '0'.repeat(len)
-		return (zeros + num).slice(-len)
+		return num.toString().padStart(len, '0')
 	}
-
 	constructor(internal) {
 		super(internal)
 		this.MAX_INPUTS = 20
@@ -41,6 +45,9 @@ class ZNRInstance extends InstanceBase {
 	// When module gets deleted
 	destroy(restart) {
 		if (this.socket !== undefined) {
+			if (this.socket.isConnected()) {
+				this.socket.end()
+			}
 			this.socket.destroy()
 			delete this.socket
 		}
@@ -135,6 +142,9 @@ class ZNRInstance extends InstanceBase {
 		let receivebuffer = ''
 
 		if (this.socket !== undefined) {
+			if (this.socket.isConnected()) {
+				this.socket.end()
+			}
 			this.socket.removeAllListeners()
 			this.socket.destroy()
 			delete this.socket
@@ -270,7 +280,8 @@ class ZNRInstance extends InstanceBase {
 			case 'PS':
 				const op = rtr.preset
 				newVal = !!v2
-				if (!newVal || op != v1) {		// un-set preset ?
+				if (!newVal || op != v1) {
+					// un-set preset ?
 					if (op > 0) {
 						rtr.pre[op - 1].active = false
 						this.setVariableValues({ [`p_${pad0(op)}_u`]: false })
@@ -284,7 +295,7 @@ class ZNRInstance extends InstanceBase {
 					rtr.pre[v1 - 1].active = newVal
 					this.setVariableValues({ [`p_${pad0(op)}_a`]: newVal })
 				}
-				this.checkFeedbacks('pre_use','pre_ok')
+				this.checkFeedbacks('pre_use', 'pre_ok')
 				break
 			case 'PN':
 				rtr.pre[v1 - 1].name = newVal

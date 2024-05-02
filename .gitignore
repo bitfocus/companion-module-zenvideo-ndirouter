@@ -3,6 +3,13 @@ node_modules/
 .DS_Store
 /pkg
 /pkg.tgz
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 DEBUG-INSPECT
 DEBUG-PACKAGED
 DEBUG-PACKAGE
