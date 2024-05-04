@@ -45,9 +45,6 @@ class ZNRInstance extends InstanceBase {
 	// When module gets deleted
 	destroy(restart) {
 		if (this.socket !== undefined) {
-			if (this.socket.isConnected()) {
-				this.socket.end()
-			}
 			this.socket.destroy()
 			delete this.socket
 		}
@@ -142,9 +139,6 @@ class ZNRInstance extends InstanceBase {
 		let receivebuffer = ''
 
 		if (this.socket !== undefined) {
-			if (this.socket.isConnected()) {
-				this.socket.end()
-			}
 			this.socket.removeAllListeners()
 			this.socket.destroy()
 			delete this.socket
