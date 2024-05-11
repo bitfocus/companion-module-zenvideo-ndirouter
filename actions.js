@@ -1,8 +1,9 @@
+import {InstanceStatus} from '@companion-module/base'
 export function compileActionDefinitions(self) {
 	const pad0 = self.pad0
 
 	let actionDefs = {
-		'route': {
+		route: {
 			name: 'Route input to output',
 			options: [
 				{
@@ -21,10 +22,10 @@ export function compileActionDefinitions(self) {
 			callback: async (action, context) => {
 				const i = parseInt(await context.parseVariablesInString(action.options.input))
 				const o = parseInt(await context.parseVariablesInString(action.options.output))
-				const ci = action.controlId
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
 
-				const bi = i < 0 || i > self.MAX_INPUTS
-				const bo = o < 0 || o > self.MAX_OUTPUTS
+				const bi = i < 0 || i > self.router.inputs
+				const bo = o < 0 || o > self.router.outputs
 
 				if (bi && bo) {
 					self.updateStatus(InstanceStatus.BadConfig, `Bad input and output on ${ci}`)
@@ -36,10 +37,11 @@ export function compileActionDefinitions(self) {
 
 				if (!(bi || bo)) {
 					self.sendCmd(`OS ${pad0(o)} ${pad0(i)}`)
+          self.updateStatus(InstanceStatus.Ok)
 				}
 			},
 		},
-		'recallPreset': {
+		recallPreset: {
 			name: 'Recall Preset',
 			options: [
 				{
@@ -51,16 +53,18 @@ export function compileActionDefinitions(self) {
 			],
 			callback: async (action, context) => {
 				let p = parseInt(await context.parseVariablesInString(action.options.recall))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
 
-				if (p < 1 || p > self.MAX_OUTPUTS) {
-					self.updateStatus(InstanceStatus.BadConfig, 'Bad preset on ' + action.controlId)
+				if (p < 1 || p > self.router.outputs) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad preset number on ${ci}`)
 				} else {
 					const cmd = `PS ${pad0(p)} 00`
 					self.sendCmd(cmd)
+          self.updateStatus(InstanceStatus.Ok)
 				}
 			},
 		},
-		'storePreset': {
+		storePreset: {
 			name: 'Store Preset',
 			options: [
 				{
@@ -72,12 +76,14 @@ export function compileActionDefinitions(self) {
 			],
 			callback: async (action, context) => {
 				let p = parseInt(await context.parseVariablesInString(action.options.store))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
 
-				if (p < 1 || p > self.MAX_OUTPUTS) {
-					self.updateStatus(InstanceStatus.BadConfig, 'Bad preset on ' + action.controlId)
+				if (p < 1 || p > self.router.outputs) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad preset number on ${ci}`)
 				} else {
 					const cmd = `PC ${pad0(p)} 00`
 					self.sendCmd(cmd)
+          self.updateStatus(InstanceStatus.Ok)
 				}
 			},
 		},

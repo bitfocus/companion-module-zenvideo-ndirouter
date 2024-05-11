@@ -24,9 +24,7 @@ export function GetFeedbackDefinitions(self) {
 					type: 'number',
 					label: 'Which Input?',
 					id: 'inp_num',
-					default: 1,
-					min: 1,
-					max: self.MAX_INPUTS,
+					useVariables: true,
 				},
 				{
 					type: 'dropdown',
@@ -36,8 +34,15 @@ export function GetFeedbackDefinitions(self) {
 					choices: YES_NO,
 				},
 			],
-			callback: (fb) => {
-				return self.router.inp[fb.options.inp_num - 1].valid == fb.options.is_valid
+			callback: async (fb, context) => {
+				let i = parseInt(await context.parseVariablesInString(fb.options.inp_num))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
+
+				if (p < 1 || p > self.MAX_OUTPUTS) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad input number on Feedback ${ci}`)
+				} else {
+					return self.router.inp[i - 1].valid == fb.options.is_valid
+				}
 			},
 		},
 		inp_use: {
@@ -53,9 +58,7 @@ export function GetFeedbackDefinitions(self) {
 					type: 'number',
 					label: 'Which Input?',
 					id: 'inp_num',
-					default: 1,
-					min: 1,
-					max: self.MAX_INPUTS,
+					useVariables: true,
 				},
 				{
 					type: 'dropdown',
@@ -65,8 +68,15 @@ export function GetFeedbackDefinitions(self) {
 					choices: YES_NO,
 				},
 			],
-			callback: (fb) => {
-				return self.router.inp[fb.options.inp_num - 1].outs.size > 0 == fb.options.in_use
+			callback: async (fb, context) => {
+				let i = parseInt(await context.parseVariablesInString(fb.options.inp_num))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
+
+				if (p < 1 || p > self.MAX_OUTPUTS) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad input number on Feedback ${ci}`)
+				} else {
+					return self.router.inp[i - 1].outs.size > 0 == fb.options.in_use
+				}
 			},
 		},
 		routed: {
@@ -97,12 +107,20 @@ export function GetFeedbackDefinitions(self) {
 				const opt = fb.options
 				const i = parseInt(await context.parseVariablesInString(opt.source))
 				const o = parseInt(await context.parseVariablesInString(opt.dest))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
 
-				if (i > 0 && i <= self.router.inputs && o > 0 && o <= self.router.outputs) {
-					return self.router.out[o - 1].inp == i
-				} else {
-					self.log('warn', 'Option out of range ' + fb.controlId)
+				const bi = i < 0 || i > self.MAX_INPUTS
+				const bo = o < 0 || o > self.MAX_OUTPUTS
+
+				if (bi && bo) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad input and output numbers on Feedback ${ci}`)
+				} else if (bo) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad ouput number on Feedback ${ci}`)
+				} else if (bi) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad input number on Feedback ${ci}`)
 				}
+
+				return self.router.out[o - 1].inp == i
 			},
 		},
 		pre_ok: {
@@ -118,9 +136,7 @@ export function GetFeedbackDefinitions(self) {
 					type: 'number',
 					label: 'Which preset?',
 					id: 'pre_num',
-					default: 1,
-					min: 1,
-					max: self.MAX_INPUTS,
+					useVariables: true,
 				},
 				{
 					type: 'dropdown',
@@ -130,8 +146,15 @@ export function GetFeedbackDefinitions(self) {
 					choices: YES_NO,
 				},
 			],
-			callback: (fb) => {
-				return self.router.pre[fb.options.pre_num - 1].valid == fb.options.is_valid
+			callback: async (fb, context) => {
+				let p = parseInt(await context.parseVariablesInString(fb.options.pre_num))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
+
+				if (p < 1 || self.router.pre.length < p) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad preset number on Feedback ${ci}`)
+				} else {
+					return self.router.pre[p - 1].valid == fb.options.is_valid
+				}
 			},
 		},
 		pre_use: {
@@ -147,9 +170,7 @@ export function GetFeedbackDefinitions(self) {
 					type: 'number',
 					label: 'Which Preset?',
 					id: 'pre_num',
-					default: 1,
-					min: 1,
-					max: self.MAX_INPUTS,
+					useVariables: true,
 				},
 				{
 					type: 'dropdown',
@@ -159,8 +180,15 @@ export function GetFeedbackDefinitions(self) {
 					choices: YES_NO,
 				},
 			],
-			callback: (fb) => {
-				return self.router.pre[fb.options.pre_num - 1].active == fb.options.active
+			callback: async (fb, context) => {
+				let p = parseInt(await context.parseVariablesInString(fb.options.pre_num))
+				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
+
+				if (p < 1 || self.router.pre.length < p) {
+					self.updateStatus(InstanceStatus.BadConfig, `Bad preset number on Feedback ${ci}`)
+				} else {
+					return self.router.pre[p - 1].active == fb.options.active
+				}
 			},
 		},
 	}
