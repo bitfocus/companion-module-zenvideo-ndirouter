@@ -9,7 +9,7 @@ class ZNRInstance extends InstanceBase {
 	sendCmd = async (cmd) => {
 		if (this.socket !== undefined && this.socket.isConnected) {
 			if (this.debugLevel > 0) {
-				this.log('debug', `send: ${cmd}`)
+				this.log('debug', `send>>>: ${cmd}`)
 			}
 			this.socket.send(cmd + '\r')
 		} else {
@@ -135,6 +135,13 @@ class ZNRInstance extends InstanceBase {
 		this.init_tcp()
 	}
 
+	keep_alive() {
+		if (this.attached) {
+			this.sendCmd('DD 00 00')
+			this.sendCmd('PR 00 00')
+		}
+	}
+
 	init_tcp() {
 		let receivebuffer = ''
 
@@ -147,9 +154,11 @@ class ZNRInstance extends InstanceBase {
 
 		if (this.config.host && this.config.port) {
 			this.socket = new TCPHelper(this.config.host, this.config.port)
+			this.socket._socket.setKeepAlive(true, 15000)
 
 			this.socket.on('connect', () => {
 				this.log('info', `Connected to ${this.config.host}`)
+				this.poll_interval = setInterval(() => this.keep_alive(), 20000)
 				this.attached = false
 			})
 
@@ -184,14 +193,15 @@ class ZNRInstance extends InstanceBase {
 					if (!this.attached) {
 						this.attached = true
 						this.updateStatus(InstanceStatus.Ok)
-						this.sendCmd('ON 00 00')
-						this.sendCmd('IN 00 01')
-						this.sendCmd('IN 00 02')
-						this.sendCmd('IV 00 00')
-						this.sendCmd('OR 00 00')
-						this.sendCmd('PV 00 00')
+						this.sendCmd('DD 00 00')
+						// this.sendCmd('ON 00 00')
+						// this.sendCmd('IN 00 01')
+						// this.sendCmd('IN 00 02')
+						// this.sendCmd('IV 00 00')
+						// this.sendCmd('OR 00 00')
+						// this.sendCmd('PV 00 00')
 						this.sendCmd('PR 00 00')
-						this.sendCmd('PN 00 00')
+						// this.sendCmd('PN 00 00')
 					}
 					if ('' != line) {
 						this.incomingData(line)
@@ -212,7 +222,7 @@ class ZNRInstance extends InstanceBase {
 		let vn = ''
 
 		if (this.debugLevel > 0) {
-			this.log('debug', `recv: ${line}`)
+			this.log('debug', `>>>recv: ${line}`)
 		}
 
 		switch (resp) {
@@ -224,15 +234,28 @@ class ZNRInstance extends InstanceBase {
 
 			case 'IN':
 				// which name reply? name, net, both
-				const n = v1 > 64 ? 64 : v1 > 32 ? 32 : 0
-				const i = v1 - n
+				const n = v1 >> 5 //v1 > 64 ? 64 : v1 > 32 ? 32 : 0
+				const i = v1 % 32
 
-				if (64 == n && newVal != '') {
-					vn = `i_${pad0(i)}_t`
-					rtr.inp[i - 1].net = newVal
-				} else if (n <= 32 && newVal != '') {
-					vn = `i_${pad0(i)}_n`
-					rtr.inp[i - 1].name = newVal
+				if (newVal != '') {
+					vn = `i_${pad0(i)}`
+
+					switch (n) {
+						case 2:
+							vn = `${vn}_t`
+							rtr.inp[i - 1].net = newVal
+							break
+						case 1:
+							vn = `${vn}_n`
+							rtr.inp[i - 1].name = newVal
+							break
+						case 0:
+							const nv = newVal.split(' (')
+							const nn = nv[1].slice(0, -1)
+							rtr.inp[i - 1].name = nv[0]
+							rtr.inp[i - 1].net = nn
+							this.setVariableValues({ [`${vn}_n`]: nv[0], [`${vn}_t`]: nn })
+					}
 				}
 				break
 			case 'ON':
