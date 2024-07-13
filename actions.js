@@ -55,7 +55,7 @@ export function compileActionDefinitions(self) {
 				let p = parseInt(await context.parseVariablesInString(action.options.recall))
 				const ci = await context.parseVariablesInString('$(this:page)/$(this:row)/$(this:column)')
 
-				if (p < 1 || p > self.router.outputs) {
+				if (p < 1 || p > self.router.inputs) {
 					self.updateStatus(InstanceStatus.BadConfig, `Bad preset number on ${ci}`)
 				} else {
 					const cmd = `PS ${pad0(p)} 00`
