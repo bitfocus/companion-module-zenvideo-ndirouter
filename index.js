@@ -250,12 +250,12 @@ class ZNRInstance extends InstanceBase {
 							rtr.inp[i - 1].name = newVal
 							break
 						case 0:
-							const nv = newVal.split(' (')
+							const nv = newVal.split('(')
               const nn = ('(None)'==nv ? nv : nv[1].slice(0,-1))
 
-              rtr.inp[i - 1].name = nv[0]
-							rtr.inp[i - 1].net = nn
-							this.setVariableValues({ [`${vn}_n`]: nv[0], [`${vn}_t`]: nn })
+              rtr.inp[i - 1].name = nn
+							rtr.inp[i - 1].net = nv[0]
+							this.setVariableValues({ [`${vn}_t`]: nv[0], [`${vn}_n`]: nn })
 					}
 				}
 				break
