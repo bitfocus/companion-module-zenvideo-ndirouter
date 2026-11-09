@@ -12,9 +12,9 @@
 		"url": "git+https://github.com/bitfocus/companion-module-zenvideo-ndirouter.git"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.8.0"
+		"@companion-module/tools": "^2.9.0"
 	},
 	"dependencies": {
-		"@companion-module/base": "^1.8.0"
+		"@companion-module/base": "^1.15.1"
 	}
 }
