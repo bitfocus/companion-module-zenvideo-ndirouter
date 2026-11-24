@@ -1,6 +1,6 @@
 {
 	"name": "zenvideo-ndirouter",
-	"version": "2.4.3",
+	"version": "2.4.4",
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
@@ -12,9 +12,9 @@
 		"url": "git+https://github.com/bitfocus/companion-module-zenvideo-ndirouter.git"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.8.0"
+		"@companion-module/tools": "^2.9.0"
 	},
 	"dependencies": {
-		"@companion-module/base": "^1.8.0"
+		"@companion-module/base": "^1.15.1"
 	}
 }
